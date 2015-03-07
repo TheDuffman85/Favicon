@@ -173,9 +173,7 @@ namespace TheDuffman85.Tools
                 // Link
                 foreach (Match m in Regex.Matches(html, "<link[^>]*(rel=\"icon\"|rel=\"shortcut icon\"|rel=\"apple-touch-icon\"|rel=\"apple-touch-icon-precomposed\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
                 {
-                    string tag = m.Value;
-
-                    match = Regex.Match(tag, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
+                    match = Regex.Match(m.Value, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
 
                     if (match.Success)
                     {
@@ -186,9 +184,7 @@ namespace TheDuffman85.Tools
                 // Meta
                 foreach (Match m in Regex.Matches(html, "<meta[^>]*(itemprop=\"image\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
                 {
-                    string tag = m.Value;
-                                        
-                    match = Regex.Match(tag, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
+                    match = Regex.Match(m.Value, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
 
                     if (match.Success)
                     {
