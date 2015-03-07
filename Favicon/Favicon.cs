@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace TheDuffman85.Tools
 {
     /// <summary>
-    /// This class provides the favicon of a given url
+    /// This class provides the favicon of a given url.
     /// </summary>
     public class Favicon
     {
@@ -31,14 +31,27 @@ namespace TheDuffman85.Tools
         #region Variables
 
         private Image _icon;
+        private object _tag;
         
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The favicon of the given url. Use GetFromUrl or GetFromUrlAsync to fill this property.
+        /// </summary>
         public Image Icon
         {
             get { return _icon; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the object that contains supplemental data.
+        /// </summary>
+        public object Tag
+        {
+            get { return _tag; }
+            set { _tag = value; }
         }
 
         #endregion
@@ -46,7 +59,7 @@ namespace TheDuffman85.Tools
         #region Constructor
 
         /// <summary>
-        /// Standard constructor
+        /// Standard constructor.
         /// </summary>
         public Favicon()
         {
@@ -62,9 +75,9 @@ namespace TheDuffman85.Tools
         #region Public Methods
 
         /// <summary>
-        /// Gets the favicon from a given url
+        /// Gets the favicon from a given url.
         /// </summary>
-        /// <param name="url">The url to get the favicon from</param>
+        /// <param name="url">The url to get the favicon from.</param>
         /// <returns>Favicon</returns>
         public static Favicon GetFromUrl(Uri url)
         {
@@ -76,9 +89,9 @@ namespace TheDuffman85.Tools
         }
 
         /// <summary>
-        /// Gets the favicon asynchronously from a given url
+        /// Gets the favicon asynchronously from a given url.
         /// </summary>
-        /// <param name="url">The url to get the favicon from</param>
+        /// <param name="url">The url to get the favicon from.</param>
         /// <returns>Favicon</returns>
         public void GetFromUrlAsync(Uri url)
         {
