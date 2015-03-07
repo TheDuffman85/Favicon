@@ -48,6 +48,9 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Gets or sets the object that contains supplemental data.
         /// </summary>
+        /// <remarks>
+        /// Will be null if no favicon can be found.
+        /// </remarks>
         public object Tag
         {
             get { return _tag; }
@@ -77,6 +80,9 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Gets the favicon from a given url.
         /// </summary>
+        /// <remarks>
+        /// The property Icon will be null if no favicon can be found.
+        /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
         /// <returns>Favicon</returns>
         public static Favicon GetFromUrl(string url)
@@ -87,6 +93,9 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Gets the favicon from a given url.
         /// </summary>
+        /// <remarks>
+        /// The property Icon will be null if no favicon can be found.
+        /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
         /// <returns>Favicon</returns>
         public static Favicon GetFromUrl(Uri url)
@@ -101,6 +110,9 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Gets the favicon asynchronously from a given url.
         /// </summary>
+        /// <remarks>
+        /// The property Icon will be null if no favicon can be found.
+        /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
         public void GetFromUrlAsync(string url)
         {
@@ -110,6 +122,9 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Gets the favicon asynchronously from a given url.
         /// </summary>
+        /// <remarks>
+        /// The property Icon will be null if no favicon can be found.
+        /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
         public void GetFromUrlAsync(Uri url)
         {
