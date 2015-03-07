@@ -24,6 +24,9 @@ namespace TheDuffman85.Tools
 
         #region Events
 
+        /// <summary>
+        /// Occurs when GetFromUrlAsync is completed.
+        /// </summary>
         public event GetFromUrlAsyncCompletedEventHandler GetFromUrlAsyncCompleted;
 
         #endregion
