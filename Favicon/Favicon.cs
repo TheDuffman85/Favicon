@@ -171,39 +171,29 @@ namespace TheDuffman85.Tools
                 Match match;
 
                 // Link
-                foreach (Match m in Regex.Matches(html, "<link[^>]*[\\/]?>", RegexOptions.IgnoreCase))
+                foreach (Match m in Regex.Matches(html, "<link[^>]*(rel=\"icon\"|rel=\"shortcut icon\"|rel=\"apple-touch-icon\"|rel=\"apple-touch-icon-precomposed\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
                 {
                     string tag = m.Value;
 
-                    match = Regex.Match(tag, "rel=\"icon\"|rel=\"shortcut icon\"|rel=\"apple-touch-icon\"|rel=\"apple-touch-icon-precomposed\"", RegexOptions.IgnoreCase);
+                    match = Regex.Match(tag, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
 
                     if (match.Success)
                     {
-                        match = Regex.Match(tag, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
-
-                        if (match.Success)
-                        {
-                            return match.Groups[1].Value;
-                        }
+                        return match.Groups[1].Value;
                     }
                 }
 
                 // Meta
-                foreach (Match m in Regex.Matches(html, "<meta[^>]*[\\/]?>", RegexOptions.IgnoreCase))
+                foreach (Match m in Regex.Matches(html, "<meta[^>]*(itemprop=\"image\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
                 {
                     string tag = m.Value;
-
-                    match = Regex.Match(tag, "itemprop=\"image\"", RegexOptions.IgnoreCase);
+                                        
+                    match = Regex.Match(tag, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
 
                     if (match.Success)
                     {
-                        match = Regex.Match(tag, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
-
-                        if (match.Success)
-                        {
-                            return match.Groups[1].Value;
-                        }
-                    }
+                        return match.Groups[1].Value;
+                    }                    
                 }
             }
             catch
