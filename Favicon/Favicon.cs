@@ -16,18 +16,12 @@ namespace TheDuffman85.Tools
     /// </summary>
     public class Favicon
     {
-        #region Delegate
-
-        public delegate void GetFromUrlAsyncCompletedEventHandler(object sender, EventArgs e);
-
-        #endregion
-
         #region Events
 
         /// <summary>
         /// Occurs when GetFromUrlAsync is completed.
         /// </summary>
-        public event GetFromUrlAsyncCompletedEventHandler GetFromUrlAsyncCompleted;
+        public event EventHandler GetFromUrlAsyncCompleted;
 
         #endregion
 
