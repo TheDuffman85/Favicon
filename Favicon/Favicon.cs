@@ -79,6 +79,16 @@ namespace TheDuffman85.Tools
         /// </summary>
         /// <param name="url">The url to get the favicon from.</param>
         /// <returns>Favicon</returns>
+        public static Favicon GetFromUrl(string url)
+        {
+            return GetFromUrl(new Uri(url));
+        }
+
+        /// <summary>
+        /// Gets the favicon from a given url.
+        /// </summary>
+        /// <param name="url">The url to get the favicon from.</param>
+        /// <returns>Favicon</returns>
         public static Favicon GetFromUrl(Uri url)
         {
             Favicon favicon = new Favicon();
@@ -87,12 +97,20 @@ namespace TheDuffman85.Tools
 
             return favicon;            
         }
+        
+        /// <summary>
+        /// Gets the favicon asynchronously from a given url.
+        /// </summary>
+        /// <param name="url">The url to get the favicon from.</param>
+        public void GetFromUrlAsync(string url)
+        {
+            GetFromUrlAsync(new Uri(url));
+        }
 
         /// <summary>
         /// Gets the favicon asynchronously from a given url.
         /// </summary>
         /// <param name="url">The url to get the favicon from.</param>
-        /// <returns>Favicon</returns>
         public void GetFromUrlAsync(Uri url)
         {
             new Task(() =>
