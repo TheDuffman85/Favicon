@@ -21,12 +21,19 @@ namespace TheDuffman85.Tools
         /// <summary>
         /// Occurs when GetFromUrlAsync is completed.
         /// </summary>
-        public event EventHandler GetFromUrlAsyncCompleted;
+        public event AsyncCompletedEventHandler GetFromUrlAsyncCompleted;
+
+        #endregion
+
+        #region Constances
+
+        private const int DEFAULT_TIMEOUT = 5 * 1000;
 
         #endregion
 
         #region Variables
 
+        private int _timeout = 5 * 1000;
         private Image _icon;
         private object _tag;
         
@@ -74,6 +81,7 @@ namespace TheDuffman85.Tools
 
         #region Public Methods
 
+
         /// <summary>
         /// Gets the favicon from a given url.
         /// </summary>
@@ -81,10 +89,11 @@ namespace TheDuffman85.Tools
         /// The property Icon will be null if no favicon can be found.
         /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
-        /// <returns>Favicon</returns>
-        public static Favicon GetFromUrl(string url)
+        /// <param name="timeout">Timeout for web requests. The timeout will not raise an exception. The default value is 5 seconds.</param>
+        /// <returns>Favicon</returns>        
+        public static Favicon GetFromUrl(string url, int timeout = DEFAULT_TIMEOUT)
         {
-            return GetFromUrl(new Uri(url));
+            return GetFromUrl(new Uri(url), timeout);
         }
 
         /// <summary>
@@ -94,11 +103,13 @@ namespace TheDuffman85.Tools
         /// The property Icon will be null if no favicon can be found.
         /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
+        /// <param name="timeout">Timeout for web requests. The timeout will not raise an exception. The default value is 5 seconds.</param>
         /// <returns>Favicon</returns>
-        public static Favicon GetFromUrl(Uri url)
+        public static Favicon GetFromUrl(Uri url, int timeout = DEFAULT_TIMEOUT)
         {
             Favicon favicon = new Favicon();
 
+            favicon._timeout = timeout;
             favicon._icon = favicon.GetIcon(url);
 
             return favicon;            
@@ -111,9 +122,10 @@ namespace TheDuffman85.Tools
         /// The property Icon will be null if no favicon can be found.
         /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
-        public void GetFromUrlAsync(string url)
+        /// <param name="timeout">Timeout for web requests. The timeout will not raise an exception. The default value is 5 seconds.</param>
+        public void GetFromUrlAsync(string url, int timeout = DEFAULT_TIMEOUT)
         {
-            GetFromUrlAsync(new Uri(url));
+            GetFromUrlAsync(new Uri(url), timeout);
         }
 
         /// <summary>
@@ -123,16 +135,29 @@ namespace TheDuffman85.Tools
         /// The property Icon will be null if no favicon can be found.
         /// </remarks>
         /// <param name="url">The url to get the favicon from.</param>
-        public void GetFromUrlAsync(Uri url)
+        /// <param name="timeout">Timeout for web requests. The timeout will not raise an exception. The default value is 5 seconds.</param>
+        public void GetFromUrlAsync(Uri url, int timeout = DEFAULT_TIMEOUT)
         {
             new Task(() =>
             {
-                this._icon = GetIcon(url);
+                this._timeout = timeout;
 
-                if (GetFromUrlAsyncCompleted != null)
+                try
                 {
-                    GetFromUrlAsyncCompleted(this, new EventArgs());
+                    this._icon = GetIcon(url);
+
+                    if (GetFromUrlAsyncCompleted != null)
+                    {
+                        GetFromUrlAsyncCompleted(this, new AsyncCompletedEventArgs(null, false, null));
+                    }
                 }
+                catch (Exception ex)
+                {
+                    if (GetFromUrlAsyncCompleted != null)
+                    {
+                        GetFromUrlAsyncCompleted(this, new AsyncCompletedEventArgs(ex, false, null));
+                    }
+                }                
             }
             ).Start();            
         }
@@ -145,68 +170,61 @@ namespace TheDuffman85.Tools
         {
             Image icon = null;
 
-            icon = DownloadFavicon(url, "/favicon.ico");
-
-            if (icon == null)
+            try
             {
-                string iconUrl = ExtractFavIconUrl(url);
+                icon = DownloadFavicon(url, "/favicon.ico");
 
-                if (iconUrl != null)
+                if (icon == null)
                 {
-                    icon = DownloadFavicon(url, iconUrl);
+                    string iconUrl = ExtractFavIconUrl(url);
+
+                    if (iconUrl != null)
+                    {
+                        icon = DownloadFavicon(url, iconUrl);
+                    }
                 }
             }
+            catch (WebException ex)
+            {
+                if (ex.Status != WebExceptionStatus.Timeout)
+                {
+                    throw;
+                }
+            }               
 
             return icon;
-        }
-
-        private WebClient GetWebClient()
-        {            
-            WebClient client = new WebClient();
-
-            IWebProxy wp = WebRequest.DefaultWebProxy;
-            wp.Credentials = CredentialCache.DefaultCredentials;
-            client.Proxy = wp;
-
-            return client;                        
         }
                 
         private string ExtractFavIconUrl(Uri url)
         {
-            WebClient client = GetWebClient();
+            WebClient client = new WebClientExtended(_timeout);
             string iconUrl = null;
 
-            try
+            string html = client.DownloadString(url);
+
+            Match match;
+
+            // Link
+            foreach (Match m in Regex.Matches(html, "<link[^>]*(rel=\"icon\"|rel=\"shortcut icon\"|rel=\"apple-touch-icon\"|rel=\"apple-touch-icon-precomposed\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
             {
-                string html = client.DownloadString(url);
+                match = Regex.Match(m.Value, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
 
-                Match match;
-
-                // Link
-                foreach (Match m in Regex.Matches(html, "<link[^>]*(rel=\"icon\"|rel=\"shortcut icon\"|rel=\"apple-touch-icon\"|rel=\"apple-touch-icon-precomposed\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
+                if (match.Success)
                 {
-                    match = Regex.Match(m.Value, "href=\"([^\"]*)\"", RegexOptions.IgnoreCase);
-
-                    if (match.Success)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-
-                // Meta
-                foreach (Match m in Regex.Matches(html, "<meta[^>]*(itemprop=\"image\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
-                {
-                    match = Regex.Match(m.Value, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
-
-                    if (match.Success)
-                    {
-                        return match.Groups[1].Value;
-                    }                    
+                    return match.Groups[1].Value;
                 }
             }
-            catch
+
+            // Meta
+            foreach (Match m in Regex.Matches(html, "<meta[^>]*(itemprop=\"image\")[^>]*[\\/]?>", RegexOptions.IgnoreCase))
             {
-            }
+                match = Regex.Match(m.Value, "content=\"([^\"]*)\"", RegexOptions.IgnoreCase);
+
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }                    
+            }            
 
             return iconUrl;            
         }
@@ -214,7 +232,7 @@ namespace TheDuffman85.Tools
         private Image DownloadFavicon(Uri baseUrl, string iconUrl)
         {         
             Image icon = null;
-            WebClient client = GetWebClient();
+            WebClient client = new WebClientExtended(_timeout);
 
             try
             {
@@ -235,12 +253,16 @@ namespace TheDuffman85.Tools
                     }
                 }
             }
-            catch
+            catch (WebException ex)
             {
+                if (ex.Status != WebExceptionStatus.ProtocolError)
+                {
+                    throw;
+                }
             }
 
             return icon;            
-        }
+        }        
 
         #endregion
     }

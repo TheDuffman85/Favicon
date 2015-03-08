@@ -33,10 +33,18 @@ namespace FaviconTest
             Uri url;
 
             pbFav.Image = null;
+            lblError.Text = string.Empty;
 
             if (Uri.TryCreate(txtUrl.Text, UriKind.RelativeOrAbsolute, out url))
             {
-                pbFav.Image = Favicon.GetFromUrl(url).Icon;
+                try
+                {
+                    pbFav.Image = Favicon.GetFromUrl(url).Icon;
+                }
+                catch (Exception ex)
+                {
+                    lblError.Text = ex.Message;
+                }                
             }
         }        
 
@@ -45,6 +53,7 @@ namespace FaviconTest
             Uri url;
 
             pbFav.Image = null;
+            lblError.Text = string.Empty;
 
             _favicon.GetFromUrlAsyncCompleted += _favicon_GetFromUriAsyncCompleted;
                  
@@ -55,9 +64,20 @@ namespace FaviconTest
             }            
         }
 
-        private void _favicon_GetFromUriAsyncCompleted(object sender, EventArgs e)
+        private void _favicon_GetFromUriAsyncCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pbFav.Image = _favicon.Icon;
+            if (e.Error != null)
+            {
+                lblError.Invoke((MethodInvoker)(() =>
+                {
+                    lblError.Text = e.Error.Message;
+                }
+                ));                
+            }
+            else
+            {
+                pbFav.Image = _favicon.Icon;
+            }
         }
 
         #endregion
