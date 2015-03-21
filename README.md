@@ -1,5 +1,5 @@
 # Favicon
-This class provides the favicon of a given url
+This C# class provides the favicon of a given url
 
 # Example
 ```
